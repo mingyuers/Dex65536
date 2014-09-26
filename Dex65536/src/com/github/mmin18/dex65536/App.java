@@ -16,7 +16,9 @@ public class App extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		dexTool();
+		dexTool("libs-1.apk");
+		dexTool("libs-2.apk");
+		dexTool("libs-3.apk");
 	}
 
 	/**
@@ -27,14 +29,14 @@ public class App extends Application {
 	 * file as it's parent.
 	 */
 	@SuppressLint("NewApi")
-	private void dexTool() {
+	private void dexTool(String libApkName) {
 
 		File dexDir = new File(getFilesDir(), "dlibs");
 		dexDir.mkdir();
-		File dexFile = new File(dexDir, "libs.apk");
+		File dexFile = new File(dexDir, libApkName);
 		File dexOpt = getCacheDir();
 		try {
-			InputStream ins = getAssets().open("libs.apk");
+			InputStream ins = getAssets().open(libApkName);
 			if (dexFile.length() != ins.available()) {
 				FileOutputStream fos = new FileOutputStream(dexFile);
 				byte[] buf = new byte[4096];
