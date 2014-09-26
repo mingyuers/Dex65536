@@ -5,36 +5,115 @@
         <pathelement path="${custom_rules.basedir}/pathtool.jar" />
     </path>
     <taskdef resource="anttasks.properties" classpathref="pathtool.antlibs"/>
+        
+    <property name="packtool.lib.1" value="libs-1"/>
+    <property name="packtool.lib.2" value="libs-2"/>
+    <property name="packtool.lib.2" value="libs-3"/>
+    
+    <property name="packtool.path.1" value="/android-support-v4.jar"/>
+    <property name="packtool.path.2" value="/10k-methods.jar"/>
+    <property name="packtool.path.3" value="/Lib/"/>
 
     <target name="-post-compile">
         <!--
-        libs="libs/" means pack all .jar library into the secondary dex.
-        if you to pack specific .jar into the secondary dex, change it to
-        libs="/android-support-v4.jar,/10k-methods.jar"
+        - pathtool task:
+        - libs="libs/" means pack all .jar library into the secondary dex.
+        - if you to pack specific .jar into the secondary dex, change it to
+        - libs="/android-support-v4.jar,/10k-methods.jar"
+        - 
+        - target modification for multiple dex per project compilation:
+        - since the reference id out.dex.jar.assets stores the full path of
+        - the libraries specified in each pathtool task, I've used path tool
+        - to get the full path of each library for me, then pass the listed
+        - paths to the <path> of the <dex> task.
+        - that last <pathtool> tasks serves as the final list of paths that
+        - were excluded from the project's main classes.dex, the list of
+        - paths of this last call for <pathtool> should be all paths that
+        - are specified on the previous <pathtool> calls.
         -->
+        
+        <mkdir dir="${out.absolute.dir}/${packtool.lib.1}.apk"/>
+        <mkdir dir="${out.absolute.dir}/${packtool.lib.2}.apk"/>
+        <mkdir dir="${out.absolute.dir}/${packtool.lib.3}.apk"/>
+        
+        <!-- LIB - 1 -->
         <pathtool
-            libs="libs/"
+            libs="${packtool.path.1}"
             refid="project.all.jars.path"
             excludeRefid="out.dex.jar.input.ref"
             includeRefid="out.dex.jar.assets" />
-        <mkdir dir="${out.absolute.dir}/libs.apk"/>
         <dex executable="${dx}"
-                output="${out.absolute.dir}/libs.apk/classes.dex"
-                dexedlibs="${out.absolute.dir}/libs.apk"
+                output="${out.absolute.dir}/${packtool.lib.1}.apk/classes.dex"
+                dexedlibs="${out.absolute.dir}/${packtool.lib.1}.apk"
                 nolocals="true"
                 forceJumbo="false"
                 disableDexMerger="false">
             <path refid="out.dex.jar.assets" />
         </dex>
-        <zip destfile="${out.absolute.dir}/libs-unaligned.apk"
-            basedir="${out.absolute.dir}/libs.apk"
+        <zip destfile="${out.absolute.dir}/${packtool.lib.1}-unaligned.apk"
+            basedir="${out.absolute.dir}/${packtool.lib.1}.apk"
             includes="classes.dex"
             update="true"/>
         <zipalign
             executable="${zipalign}"
-            input="${out.absolute.dir}/libs-unaligned.apk"
-            output="${asset.absolute.dir}/libs.apk"
+            input="${out.absolute.dir}/${packtool.lib.1}-unaligned.apk"
+            output="${asset.absolute.dir}/${packtool.lib.1}.apk"
             verbose="${verbose}" />
+        
+        <!-- LIB - 2 -->
+        <pathtool
+            libs="${packtool.path.2}"
+            refid="project.all.jars.path"
+            excludeRefid="out.dex.jar.input.ref"
+            includeRefid="out.dex.jar.assets" />
+        <dex executable="${dx}"
+                output="${out.absolute.dir}/${packtool.lib.2}.apk/classes.dex"
+                dexedlibs="${out.absolute.dir}/${packtool.lib.2}.apk"
+                nolocals="true"
+                forceJumbo="false"
+                disableDexMerger="false">
+            <path refid="out.dex.jar.assets" />
+        </dex>
+        <zip destfile="${out.absolute.dir}/${packtool.lib.2}-unaligned.apk"
+            basedir="${out.absolute.dir}/${packtool.lib.2}.apk"
+            includes="classes.dex"
+            update="true"/>
+        <zipalign
+            executable="${zipalign}"
+            input="${out.absolute.dir}/${packtool.lib.2}-unaligned.apk"
+            output="${asset.absolute.dir}/${packtool.lib.2}.apk"
+            verbose="${verbose}" />
+        
+        <!-- LIB - 3 -->
+        <pathtool
+            libs="${packtool.path.3}"
+            refid="project.all.jars.path"
+            excludeRefid="out.dex.jar.input.ref"
+            includeRefid="out.dex.jar.assets" />
+        <dex executable="${dx}"
+                output="${out.absolute.dir}/${packtool.lib.3}.apk/classes.dex"
+                dexedlibs="${out.absolute.dir}/${packtool.lib.3}.apk"
+                nolocals="true"
+                forceJumbo="false"
+                disableDexMerger="false">
+            <path refid="out.dex.jar.assets" />
+        </dex>
+        <zip destfile="${out.absolute.dir}/${packtool.lib.3}-unaligned.apk"
+            basedir="${out.absolute.dir}/${packtool.lib.3}.apk"
+            includes="classes.dex"
+            update="true"/>
+        <zipalign
+            executable="${packtool.path.1},${packtool.path.2},${packtool.path.3}"
+            input="${out.absolute.dir}/${packtool.lib.3}-unaligned.apk"
+            output="${asset.absolute.dir}/${packtool.lib.3}.apk"
+            verbose="${verbose}" />
+        
+        <!-- LIBS -->
+        <pathtool
+            libs="libs/android-support-v4.jar,libs/10k-methods.jar,libs/TestLib.jar"
+            refid="project.all.jars.path"
+            excludeRefid="out.dex.jar.input.ref"
+            includeRefid="out.dex.jar.assets" />
     </target>
 
     <target name="-post-package">
