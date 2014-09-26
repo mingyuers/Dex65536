@@ -103,14 +103,14 @@
             includes="classes.dex"
             update="true"/>
         <zipalign
-            executable="${packtool.path.1},${packtool.path.2},${packtool.path.3}"
+            executable="${zipalign}"
             input="${out.absolute.dir}/${packtool.lib.3}-unaligned.apk"
             output="${asset.absolute.dir}/${packtool.lib.3}.apk"
             verbose="${verbose}" />
         
         <!-- LIBS -->
         <pathtool
-            libs="libs/android-support-v4.jar,libs/10k-methods.jar,libs/TestLib.jar"
+            libs="${packtool.path.1},${packtool.path.2},${packtool.path.3}"
             refid="project.all.jars.path"
             excludeRefid="out.dex.jar.input.ref"
             includeRefid="out.dex.jar.assets" />
